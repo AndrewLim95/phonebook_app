@@ -1,25 +1,125 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import phoneBookService from './services/phoneBookService'
 
-function App() {
+
+const Contact = ({person,delContact}) => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <li>{person.name} {person.number} 
+      <button onClick={() => delContact(person.id)}>delete</button>
+      </li>
+  )
+} 
+
+const App = (props) => {
+  const [persons, setPersons] = useState(props.persons) 
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [newFilter, setNewFilter] = useState('')
+
+  useEffect(() => {
+    phoneBookService
+      .getAll()
+      .then(initialPhoneBook => {
+        setPersons(initialPhoneBook)
+      })}, [])
+
+  const handleFilterChange = (event) => {
+    setNewFilter(event.target.value)
+  }
+
+  const filteredPerson = persons.filter(person=> person.name.toLowerCase().includes(newFilter.toLowerCase()))
+  console.log(filteredPerson)
+
+  const addContact = (event) => {
+    event.preventDefault()
+  
+    const existingPerson = persons.find(person => person.name === newName)
+  
+    if (existingPerson) {
+      const confirmUpdate = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+  
+      if (confirmUpdate) {
+        const updatedPerson = { ...existingPerson, number: newNumber }
+  
+        phoneBookService
+          .update(existingPerson.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson))
+            setNewName('')
+            setNewNumber('')
+          })
+          .catch(error => {
+            alert(`Failed to update ${existingPerson.name}'s number. Please try again.`)
+          })
+      }
+    } else {
+      const personObject = {
+        name: newName,
+        number: newNumber
+      }
+  
+      phoneBookService
+        .create(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alert(`Failed to add ${newName} to phonebook. Please try again.`)
+        })
+    }
+  }
+
+  const delContact = (id) => {
+    const name = persons.find((person) => person.id === id).name
+    
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      phoneBookService.deleteItem(id).then(() => {
+      setPersons(persons.filter((person) => person.id !== id))
+    })
+    }
+  }
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
+  }
+  
+  console.log(persons)
+
+  
+  return (
+    <div>
+      <h2>Phonebook</h2>
+        filter: <input
+        value={newFilter}
+        onChange={handleFilterChange}/>
+      <h3>Add a new Contact:</h3>
+      <form onSubmit={addContact}>
+        <div>
+          name: <input 
+          value={newName}
+          onChange={handleNameChange} />
+          number: <input 
+          value={newNumber}
+          onChange={handleNumberChange} />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+      </form>
+      <h2>Name, Number</h2>
+        {filteredPerson.map(person => 
+        <Contact key={person.id} person={person} delContact={delContact}/>)
+        }
+
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
