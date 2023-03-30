@@ -11,10 +11,10 @@ const getAll = () => {
     console.log('Error fetching data:', error.message);
     throw error;
   }
-}
+};
   
 
-const create = newObject => {
+const createPerson = (newObject) => {
   try {
     const request = axios.post(baseUrl, newObject)
   return request.then(response => response.data)
@@ -23,9 +23,9 @@ const create = newObject => {
   console.log('Error creating data:', error.message);
   throw error;
   }
-}
+};
 
-const update = (id, newObject) => {
+const updatePerson = (id, newObject) => {
   try {
   const request = axios.put(`${baseUrl}/${id}`, newObject)
   return request.then(response => response.data)
@@ -34,9 +34,9 @@ const update = (id, newObject) => {
   console.log('Error updating data:', error.message);
   throw error;
   }
-}
+};
 
-const deleteItem = (id) => {
+const deletePerson = (id) => {
   try {
     const request = axios.delete(`${baseUrl}/${id}`)
     return request.then(response => response.data)
@@ -45,6 +45,6 @@ const deleteItem = (id) => {
   console.log('Error deleting data:', error.message);
   throw error;
   }
-}
+};
   
-export default { getAll, create, update, deleteItem }
+export default {getAll, createPerson, updatePerson, deletePerson} 

@@ -1,18 +1,9 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-import phoneBookService from './services/phoneBookService'
-
-
-const Contact = ({person,delContact}) => {
-  return (
-      <li>{person.name} {person.number} 
-      <button onClick={() => delContact(person.id)}>delete</button>
-      </li>
-  )
-} 
-
+import phoneBookService from './Services/phoneBookService'
+import Contact from './Components/Contact'
+console.log("App running")
 const App = (props) => {
-  const [persons, setPersons] = useState(props.persons) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
@@ -43,7 +34,7 @@ const App = (props) => {
         const updatedPerson = { ...existingPerson, number: newNumber }
   
         phoneBookService
-          .update(existingPerson.id, updatedPerson)
+          .updatePerson(existingPerson.id, updatedPerson)
           .then(returnedPerson => {
             setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson))
             setNewName('')
@@ -60,7 +51,7 @@ const App = (props) => {
       }
   
       phoneBookService
-        .create(personObject)
+        .createPerson(personObject)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
@@ -76,7 +67,7 @@ const App = (props) => {
     const name = persons.find((person) => person.id === id).name
     
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
-      phoneBookService.deleteItem(id).then(() => {
+      phoneBookService.deletePerson(id).then(() => {
       setPersons(persons.filter((person) => person.id !== id))
     })
     }
