@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'http://localhost:3001/persons'
+const baseUrl = '/api/persons'
 
 const getAll = () => {
   try {
@@ -46,5 +46,7 @@ const deletePerson = (id) => {
   throw error;
   }
 };
-  
-export default {getAll, createPerson, updatePerson, deletePerson} 
+const phoneBookService = {
+  getAll, createPerson, updatePerson, deletePerson
+}
+export default phoneBookService
